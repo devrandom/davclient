@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 require 'test/unit'
-require 'webdavtools'
-require 'webdavtools/wdav_ls'
+require 'davclient'
+require 'davclient/dav-ls'
 require 'test/zentest_assertions'
 require 'test_helper'
 

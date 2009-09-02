@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 require 'test/unit'
 require 'test_helper'
-require 'webdavtools'
-require 'webdavtools/wdav_cd'
-require 'webdavtools/wdav_ls'
+require 'davclient'
+require 'davclient/dav-cd'
 require 'test/zentest_assertions'
 
 class TestWDavCd < Test::Unit::TestCase
