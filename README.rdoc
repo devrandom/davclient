@@ -1,0 +1,70 @@
+= WebDAVTools
+
+* http://webdavtools.rubyforge.org
+* http://rubyforge.org/mailman/listinfo/webdavtools-general
+
+== DESCRIPTION:
+
+WebDAVTools is a WebDAV client written in Ruby for managing
+content on webservers that support the WebDAV extensions.
+
+
+== Requirements
+
+The command line utility curl installed. Available from
+http://curl.haxx.se/ or on linux:
+
+  sudo apt-get install curl
+
+== LIRBRARY SYNOPSIS:
+
+  require 'rubygems'
+  require 'webdavtools'
+
+  # Print url of all files in webdav folder recursively
+  # with basic tree walking
+
+  url = 'http://test.webdav.org/dav/'
+  WebDAV.find(url, :recursive => true) do |item|
+    puts item.href
+  end
+
+== COMMAND LINE UTILITES:
+
+WebDAVTools includes the command line utility 'wdav'. It should be somewhat familiar to unix users.
+By using commands like 'wdav cd url' to set current working url, 'wdav ls' to list files and 'wdav pwd'
+to print current working url, users can access files, folders and their properties on webdav servers.
+
+The only authentication method supported at the method is by reading usernames and passwords from
+a file named ~/.netrc. If username is missing, 'wdav' will print out instructions for what to
+add to the .netrc file.
+
+== COMMAND LINE SYNOPSIS:
+
+  >wdav cd http://test.webdav.org/dav/
+  http://test.webdav.org/dav/
+  >wdav ls
+  images/
+  index.html
+  >wdav pwd
+  http://test.webdav.org/dav/
+
+== INSTALL:
+
+  [sudo] gem install webdavtools
+
+or
+
+  git clone git://github.com/thomasfl/webdavtools.git
+  cd webdavtools
+  gem build Rakefile
+  sudo gem install webdavtools-x.x.x.gem
+
+== Background:
+
+There has been posted a few examples on the web of how to make a WebDAV client.
+The problem is that they all seem to support only one type of username and password
+authentication. WebDAVTools instead uses the command line tool 'curl' to do all the
+authentication and networking. To avoid handling authentication all togheter, curl
+are told to look up all usernames and passwords are in a file named ~/.netrc.
+

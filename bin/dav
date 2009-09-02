@@ -1,0 +1,42 @@
+#!/usr/bin/env ruby
+require 'rubygems'
+require 'webdavtools'
+
+def print_usage
+  puts "usage: #{$0} COMMAND [ARGS]"
+  puts ""
+  puts "Available #{$0} commands:"
+  puts "   ls       List files on webdav server"
+  puts "   pwd      Print current working url"
+  puts "   cd       Change current working url"
+  puts "   props    Print webdav properties for url"
+  puts ""
+  puts "See '#{$0} COMMAND -h' for more information on a specific command."
+  exit
+end
+
+command =  ARGV[0]
+if(command == "-h" or command =~ /help/ or command =~ /\?/) then
+  print_usage
+end
+
+if(command == "-v" or command =~ /version/ ) then
+  puts "#{$0} version " + WebDAV.version
+  exit
+end
+
+case command
+  when "ls" then
+    require 'webdavtools/dav-ls'
+    WDav.ls(ARGV[1..200])
+  when "pwd"
+    require 'webdavtools/dav-pwd'
+  when "cd"
+    require 'webdavtools/dav-cd'
+    WDav.cd(ARGV[1..200])
+  when "props"
+    require 'webdavtools/dav_propfind'
+  else
+    puts "Unknown command :'" + command + "'"
+    print_usage
+end
