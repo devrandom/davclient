@@ -1,17 +1,16 @@
 # -*- coding: utf-8 -*-
 
-require 'rubygems'
 require 'hpricot'
 require 'tempfile'
 require 'open3'
-require 'webdavtools/hpricot_extensions'
+require 'davclient/hpricot_extensions'
 
 # :stopdoc:
 
 # Path to curl executable:
-$curl = "curl" # _sdf"
+$curl = "curl"
 
-require 'webdavtools/curl_commands'
+require 'davclient/curl_commands'
 
 # :startdoc:
 
