@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 require 'rubygems'
-require 'webdavtools'
+require 'davclient'
 
 def print_usage
   puts "usage: #{$0} COMMAND [ARGS]"
@@ -27,15 +27,15 @@ end
 
 case command
   when "ls" then
-    require 'webdavtools/dav-ls'
+    require 'davclient/dav-ls'
     WDav.ls(ARGV[1..200])
   when "pwd"
-    require 'webdavtools/dav-pwd'
+    require 'davclient/dav-pwd'
   when "cd"
-    require 'webdavtools/dav-cd'
+    require 'davclient/dav-cd'
     WDav.cd(ARGV[1..200])
   when "props"
-    require 'webdavtools/dav_propfind'
+    require 'davclient/dav_propfind'
   else
     puts "Unknown command :'" + command + "'"
     print_usage
