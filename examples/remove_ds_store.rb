@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 require 'rubygems'
-require 'webdavtools'
+require 'davclient'
 
 # Remove all resources (files) named ".DS_Store"
 
