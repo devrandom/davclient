@@ -1,25 +1,21 @@
-= WebDAVTools
+= DavClient
 
-* http://webdavtools.rubyforge.org
-* http://rubyforge.org/mailman/listinfo/webdavtools-general
+* http://davclient.rubyforge.org
+* http://rubyforge.org/mailman/listinfo/davclient-general
 
 == DESCRIPTION:
 
-WebDAVTools is a WebDAV client written in Ruby for managing
-content on webservers that support the WebDAV extensions.
-
+WebDAV command line client written in Ruby for managing content on
+webservers that support the WebDAV extensions.
 
 == Requirements
 
-The command line utility curl installed. Available from
-http://curl.haxx.se/ or on linux:
-
-  sudo apt-get install curl
+The command line utility curl installed and available in your unix path.
 
 == LIRBRARY SYNOPSIS:
 
   require 'rubygems'
-  require 'webdavtools'
+  require 'davclient'
 
   # Print url of all files in webdav folder recursively
   # with basic tree walking
@@ -29,42 +25,52 @@ http://curl.haxx.se/ or on linux:
     puts item.href
   end
 
-== COMMAND LINE UTILITES:
+== COMMAND LINE UTILITIES:
 
-WebDAVTools includes the command line utility 'wdav'. It should be somewhat familiar to unix users.
-By using commands like 'wdav cd url' to set current working url, 'wdav ls' to list files and 'wdav pwd'
-to print current working url, users can access files, folders and their properties on webdav servers.
+DavClient includes the command line utility 'dav'. It is inspired by git and should be familiar to unix users.
+The command 'dav cd url' sets current working url, 'dav ls' list files and 'dav pwd'
+prints current working url. , users can access files, folders and their properties on webdav servers.
 
-The only authentication method supported at the method is by reading usernames and passwords from
-a file named ~/.netrc. If username is missing, 'wdav' will print out instructions for what to
-add to the .netrc file.
+The only authentication method supported at the moment, is by reading usernames and passwords from
+a file named ~/.netrc. If username is missing, the 'dav' command will print out detailed instructions
+on how to add username etc. to the '~/.netrc' file.
 
 == COMMAND LINE SYNOPSIS:
 
-  >wdav cd http://test.webdav.org/dav/
+  >dav cd http://test.webdav.org/dav/
   http://test.webdav.org/dav/
-  >wdav ls
+  >dav ls
   images/
   index.html
-  >wdav pwd
+  >dav pwd
   http://test.webdav.org/dav/
 
 == INSTALL:
 
-  [sudo] gem install webdavtools
+  [sudo] gem install davclient
 
 or
 
-  git clone git://github.com/thomasfl/webdavtools.git
-  cd webdavtools
+  git clone git://github.com/thomasfl/davclient.git
+  cd davclient
   gem build Rakefile
-  sudo gem install webdavtools-x.x.x.gem
+  sudo gem install davclient-x.x.x.gem
+
+Curl comes preinstalled on Mac OS X. It can be downloaded from
+http://curl.haxx.se/ . If you are using debian or ubuntu, it
+can be installed by:
+
+  sudo apt-get install curl
 
 == Background:
 
 There has been posted a few examples on the web of how to make a WebDAV client.
 The problem is that they all seem to support only one type of username and password
-authentication. WebDAVTools instead uses the command line tool 'curl' to do all the
+authentication. DavClient instead uses the command line tool 'curl' to do all the
 authentication and networking. To avoid handling authentication all togheter, curl
 are told to look up all usernames and passwords are in a file named ~/.netrc.
+
+The command 'dav' is  non-interactive and inspired by git, making it suitable for
+use in scripts. If you can script in Ruby, the examples folder includes sample
+scripts using the davclient Ruby library.
 
