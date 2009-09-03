@@ -244,7 +244,7 @@ module WebDAV
     curl_command = "#{$curl} --netrc --silent --upload-file #{tmp_file} #{url}"
     response = exec_curl(curl_command)
     if(response != "" and not(response =~ /200 OK/)) then
-      raise "Error:\n WebDAV.put: WebDAV Request:\n" + CURL_PUT + "\n\nResponse: " + response
+      raise "Error:\n WebDAV.put: WebDAV Request:\n" + curl_command + "\n\nResponse: " + response
     end
   end
 
@@ -307,6 +307,7 @@ module WebDAV
       end
     end
     if(response =~ /401 Unauthorized/)then
+      href = curl_command.match( /"(http[^\"]*)"$/ )[0].gsub(/"/,"")
       self.display_unauthorized_message(href)
       exit
     end
