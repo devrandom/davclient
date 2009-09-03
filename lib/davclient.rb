@@ -3,6 +3,7 @@
 require 'hpricot'
 require 'tempfile'
 require 'open3'
+require 'pathname'
 require 'davclient/hpricot_extensions'
 
 # :stopdoc:
@@ -38,6 +39,31 @@ module WebDAV
     return cwurl
   end
 
+  # Change current work url. Takes relative pathnames "../.."
+  def self.cd(url)
+    if(url =~ /^http.?:\/\//)then
+      self.CWURL = url
+    else
+      cwurl = Pathname.new(self.CWURL)
+      cwurl = cwurl + url
+      cwurl = cwurl.to_s
+
+      cwurl = cwurl + "/" if(not(cwurl =~ /\/$/))
+
+      if(not(cwurl =~ /^http.?:\/\//))then
+        raise Exception, "cd: illegal url #{cwurl} "
+      end
+      resource = WebDAV.propfind(cwurl)
+      if(resource and resource.isCollection?)then
+        WebDAV.CWURL = cwurl
+      else
+        # TODO Make proper exception
+        raise Exception, "cd: URL '#{cwurl} is not a WebDAV collection."
+      end
+    end
+  end
+
+  # TODO: Make private?
   # Sets current working url
   def self.CWURL=(url)
     $CWURL = url # Used by tests
