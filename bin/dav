@@ -6,10 +6,10 @@ def print_usage
   puts "usage: #{$0} COMMAND [ARGS]"
   puts ""
   puts "Available #{$0} commands:"
-  puts "   ls       List files on webdav server"
-  puts "   pwd      Print current working url"
-  puts "   cd       Change current working url"
-  puts "   props    Print webdav properties for url"
+  puts "   ls        List files on webdav server"
+  puts "   pwd       Print current working url"
+  puts "   cd        Change current working url"
+  puts "   propfind  Print webdav properties for url"
   puts ""
   puts "See '#{$0} COMMAND -h' for more information on a specific command."
   exit
@@ -34,8 +34,10 @@ case command
   when "cd"
     require 'davclient/dav-cd'
     WDav.cd(ARGV[1..200])
+  when "propfind"
+    require 'davclient/dav-propfind'
   when "props"
-    require 'davclient/dav_propfind'
+    require 'davclient/dav-propfind'
   else
     puts "Unknown command :'" + command + "'"
     print_usage
