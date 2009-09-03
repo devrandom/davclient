@@ -15,30 +15,42 @@ def print_usage
   exit
 end
 
-command =  ARGV[0]
-if(command == "-h" or command =~ /help/ or command =~ /\?/) then
-  print_usage
-end
-
-if(command == "-v" or command =~ /version/ ) then
-  puts "#{$0} version " + WebDAV.version
-  exit
-end
-
-case command
-  when "ls" then
-    require 'davclient/dav-ls'
-    WDav.ls(ARGV[1..200])
-  when "pwd"
-    require 'davclient/dav-pwd'
-  when "cd"
-    require 'davclient/dav-cd'
-    WDav.cd(ARGV[1..200])
-  when "propfind"
-    require 'davclient/dav-propfind'
-  when "props"
-    require 'davclient/dav-propfind'
-  else
-    puts "Unknown command :'" + command + "'"
+def exec_dav(args)
+  command =  args[0]
+  if(command == "-h" or command =~ /help/ or command =~ /\?/) then
     print_usage
+  end
+
+  if(command == "-v" or command =~ /version/ ) then
+    puts "#{$0} version " + WebDAV.version
+    exit
+  end
+
+  case command
+    when "ls" then
+      require 'davclient/dav-ls'
+      WDav.ls(args[1..200])
+    when "pwd"
+      require 'davclient/dav-pwd'
+    when "cd"
+      url = args[1]
+      begin
+        WebDAV.cd(url)
+        puts "Changing WebDAV URL to: " + WebDAV.CWURL
+      rescue Exception => exception
+        puts exception
+      end
+
+    when "propfind"
+      require 'davclient/dav-propfind'
+    when "props"
+      require 'davclient/dav-propfind'
+    else
+      puts "Unknown command :'" + command + "'"
+      print_usage
+  end
+end
+
+if $0 == __FILE__
+  exec_dav(ARGV)
 end
