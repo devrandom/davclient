@@ -39,7 +39,13 @@ module WebDAV
     return cwurl
   end
 
-  # Change current work url. Takes relative pathnames "../.."
+  # Change current working url. Takes relative pathnames.
+  #
+  # Examples:
+  #
+  #   WebDAV.cd("http://www.example.org")
+  #
+  #   WebDAV.cd("../folder")
   def self.cd(url)
     if(url =~ /^http.?:\/\//)then
       self.CWURL = url
@@ -63,15 +69,17 @@ module WebDAV
     end
   end
 
-  # TODO: Make private?
-  # Sets current working url
+  # Sets current working url by storing url in a tempfile with parent process pid
+  # as part of the filename.
   def self.CWURL=(url)
     $CWURL = url # Used by tests
     File.open(cwurl_filename, 'w') {|f| f.write(url) }
   end
 
-  # Get content as string
+  # Get content of resource as string
+  #
   # Example:
+  #
   #    html = WebDAV.get(url)
   def self.get(href)
     curl_command = "#{$curl} --netrc " + href
@@ -79,6 +87,10 @@ module WebDAV
   end
 
   # Set WebDAV properties for url as xml.
+  #
+  # Example:
+  #
+  #   WebDAV.proppatch("https://dav.webdav.org/folder","<contentLastModified>2007-12-12 12:00:00 GMT</contentLastModified>
   def self.proppatch(href, property)
     curl_command = CURL_PROPPATCH + " \""+href+"\""
     curl_command = curl_command.gsub("<!--property-and-value-->",property)
@@ -96,10 +108,23 @@ module WebDAV
   #
   #   xml = propfind(url, :xml => true)   - Returns xml for debugging.
   def self.propfind(*args)
-    href = args[0]
+    url = args[0]
     options = args[1]
 
-    curl_command = CURL_PROPFIND + " \"" + href + "\""
+    if(not(url =~ /^http.?:\/\//))then
+      cwurl = Pathname.new(self.CWURL)
+      cwurl = cwurl + url
+      cwurl = cwurl.to_s
+      url = cwurl + "/" if(not(cwurl =~ /\/$/))
+
+      if(not(url =~ /^http.?:\/\//))then
+        warn "#{$0}: Error: illegal url: " + url
+        exit
+      end
+    end
+
+
+    curl_command = CURL_PROPFIND + " \"" + url + "\""
     response = exec_curl(curl_command)
 
     if(response == "")then
@@ -120,7 +145,7 @@ module WebDAV
     items.each do |item|
 
       # Only return root item if folder
-      if(item.href == href) then
+      if(item.href == url) then
         return item
       end
     end
@@ -211,11 +236,29 @@ module WebDAV
   end
 
   # Make collection
-  def self.mkcol(href,props)
-    curl_command = CURL_MKCOL + " " + href
+  # Accepts relative url's
+  def self.mkcol(*args) # url, props)
+    url = ""
+    url = args[0]
+    props = args[3]
+
+    if(not(url =~ /^http.?:\/\//))then
+      cwurl = Pathname.new(self.CWURL)
+      cwurl = cwurl + url
+      cwurl = cwurl.to_s
+      url = cwurl + "/" if(not(cwurl =~ /\/$/))
+
+      if(not(url =~ /^http.?:\/\//))then
+        warn "#{$0}: Error: illegal url: " + url
+        exit
+      end
+    end
+
+    curl_command = CURL_MKCOL + " " + url
     response = exec_curl(curl_command)
+
     if(props)then
-      proppatch(href,props)
+      proppatch(url,props)
     end
     if(response =~ />Created</)then
       return true
@@ -224,15 +267,28 @@ module WebDAV
   end
 
   # Delete resource
-  def self.delete(href)
-    curl_command = CURL_DELETE + href
+  def self.delete(url)
+
+    if(not(url =~ /^http.?:\/\//))then
+      cwurl = Pathname.new(self.CWURL)
+      cwurl = cwurl + url
+      cwurl = cwurl.to_s
+      url = cwurl + "/" if(not(cwurl =~ /\/$/))
+
+      if(not(url =~ /^http.?:\/\//))then
+        warn "#{$0}: Error: illegal url: " + url
+        exit
+      end
+    end
+
+    curl_command = CURL_DELETE + url
     response = exec_curl(curl_command)
 
     if(response  == "")then
       return false
     end
     if(not(response =~ /200 OK/)) then
-      puts "Error:\nRequest:\n" + curl_delete_command + "\n\nResponse: " + response
+      puts "Error:\nRequest:\n" + curl_command + "\n\nResponse: " + response
       return false
     end
     return true
@@ -258,6 +314,14 @@ module WebDAV
   #
   #   WebDAV.put("https://dav.webdav.org/file.html", "<html><h1>Test</h1></html>"
   def self.put_string(url, html)
+
+    if(not(url =~ /^http.?:\/\//))then
+      cwurl = Pathname.new(self.CWURL)
+      cwurl = cwurl + url
+      cwurl = cwurl.to_s
+      url = cwurl + "/" if(not(cwurl =~ /\/$/))
+    end
+
     if(url =~ /\/$/)then
       raise "Error: WebDAV.put_html: url can not be a collection (folder)."
     end
@@ -272,6 +336,14 @@ module WebDAV
     if(response != "" and not(response =~ /200 OK/)) then
       raise "Error:\n WebDAV.put: WebDAV Request:\n" + curl_command + "\n\nResponse: " + response
     end
+  end
+
+  # Returns a string with the webservers WebDAV options (PUT, PROPFIND, etc.)
+  def self.options(url)
+    if(not(url))
+      url = self.CWURL
+    end
+    return self.exec_curl(CURL_OPTIONS + url )
   end
 
   # :stopdoc:
@@ -313,6 +385,9 @@ module WebDAV
   # Run 'curl' as a subprocess
   def self.exec_curl(curl_command)
     response = ""
+
+    puts curl_command if($DEBUG)
+
     Open3.popen3(curl_command) do |stdin, stdout, stderr|
 
       response = stdout.readlines.join("")

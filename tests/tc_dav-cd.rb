@@ -8,7 +8,6 @@ require 'test/zentest_assertions'
 
 class TestWDavCd < Test::Unit::TestCase
 
-  # Run the wdav_ls command line script and capture stdio
   def cd(args)
     out, err = util_capture do
       WebDAV.cd(args)

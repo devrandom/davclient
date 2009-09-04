@@ -10,6 +10,8 @@ def print_usage
   puts "   pwd       Print current working url"
   puts "   cd        Change current working url"
   puts "   propfind  Print webdav properties for url"
+  puts "   mkcol     Make collection"
+  puts "   options   Display webservers WebDAV options"
   puts ""
   puts "See '#{$0} COMMAND -h' for more information on a specific command."
   exit
@@ -52,12 +54,39 @@ def exec_dav(args)
         puts exception
       end
 
+    when "mkcol"
+      if(args.size == 2 )
+        WebDAV.mkcol(args[1])
+      else
+        puts "#{$0}: usage '#{$0} mkcol url|path"
+      end
+
+    when "put"
+       require 'davclient/dav-put'
+       PutCLI.put(args[1..100])
+
+    when "delete"
+      if(args.size == 2)
+        WebDAV.delete(args[1])
+      else
+        puts "#{$0}: usage '#{$0} delete url|path"
+      end
+
     when "propfind"
       require 'davclient/dav-propfind'
       PropfindCLI.propfind(args[1..100])
+
     when "props"
       require 'davclient/dav-propfind'
       PropfindCLI.propfind(args[1..100])
+
+    when "options"
+       if(args.size == 2 or args.size == 1)
+         puts WebDAV.options(args[1])
+       else
+        puts "#{$0}: usage '#{$0} options [url]"
+       end
+
     else
       puts "Unknown command :'" + command + "'"
       print_usage
@@ -65,6 +94,5 @@ def exec_dav(args)
 
 end
 
-if $0 == __FILE__
-  exec_dav(ARGV)
-end
+exec_dav(ARGV)
+

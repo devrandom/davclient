@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
+require 'test_helper'
 require 'rubygems'
-require 'test/unit'
+require 'davclient'
 require 'davclient'
 require 'davclient/dav-ls'
+require 'test/unit'
 require 'test/zentest_assertions'
-require 'test_helper'
 
-class TestWDavLs < Test::Unit::TestCase
 
-  # Run the 'wdav ls' command line script and capture stdin & stderr
+class TestLsCLI < Test::Unit::TestCase
+
   def ls(*args)
     out, err = util_capture do
       LsCLI.ls(args)

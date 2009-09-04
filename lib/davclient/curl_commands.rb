@@ -48,3 +48,5 @@ curl_mkcol_cmd = <<EOF
   --netrc
 EOF
 CURL_MKCOL = remove_newlines(curl_mkcol_cmd)
+
+CURL_OPTIONS = "#{$curl} -i -X OPTIONS --netrc "

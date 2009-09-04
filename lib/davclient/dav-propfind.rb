@@ -3,7 +3,6 @@ require 'rubygems'
 require 'davclient'
 require 'optparse'
 
-
 class PropfindCLI
 
   def self.propfind(args)
@@ -20,35 +19,33 @@ class PropfindCLI
       exit
     end
 
-    tmp_cwurl = WebDAV.CWURL
-    WebDAV.cd(url)
-    url = WebDAV.CWURL
     if(options[:xml])then
       puts WebDAV.propfind(url, :xml => true)
-      exit
-    end
+    else
 
-    item = WebDAV.propfind(url)
-    puts item.collection
+      # TODO This is experimental code in desperat need
+      # of love and attention
+      item = WebDAV.propfind(url)
+      puts item.collection
 
-    prev_url = nil
-    WebDAV.find(url, :children => options[:children]) do | url, item |
-      if(prev_url != url) then
-        puts
-        puts "url = " + url.to_s
-        prev_url = url
+      prev_url = nil
+      WebDAV.find(url, :children => options[:children]) do | url, item |
+        if(prev_url != url) then
+          puts
+          puts "url = " + url.to_s
+          prev_url = url
+        end
+
+        name = item.prefix
+        if(item.namespace)then
+          name = name + "(" + item.namespace + ")"
+        end
+        name = name + item.name
+        puts name.ljust(40) + " = '" + item.text.to_s + "'"
       end
 
-      name = item.prefix
-      if(item.namespace)then
-        name = name + "(" + item.namespace + ")"
-      end
-      name = name + item.name
-      puts name.ljust(40) + " = '" + item.text.to_s + "'"
-
     end
-    # Restore original url
-    WebDAV.cd(tmp_cwurl)
+
   end
 
   private
