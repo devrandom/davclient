@@ -1,0 +1,10 @@
+TODO
+
+DavClient - Add new functionality
+=================================
+
+- Read options from config file, like default homepage url.
+  Make 'dav ls' go to some sort of homepage. Use .davclient
+
+- More authentication options than using the ~/.netrc file.
+
