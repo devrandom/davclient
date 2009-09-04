@@ -16,8 +16,7 @@ spec = Gem::Specification.new do |s|
   s.requirements << "Servername, username and password must be supplied in ~/.netrc file."
   s.files = ["lib/davclient.rb","lib/davclient/hpricot_extensions.rb",
              "lib/davclient/curl_commands.rb", "bin/dav",
-              "lib/davclient/dav-ls.rb","lib/davclient/dav-pwd.rb",
-              "lib/davclient/dav-cd.rb", "lib/davclient/dav-propfind.rb"]
+              "lib/davclient/dav-ls.rb", "lib/davclient/dav-propfind.rb"]
   s.executables = ["dav"]
   s.require_path = "lib"
   s.rubyforge_project = "davclient"
