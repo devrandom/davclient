@@ -29,11 +29,22 @@ def exec_dav(args)
   case command
     when "ls" then
       require 'davclient/dav-ls'
-      WDav.ls(args[1..200])
+      LsCLI.ls(args[1..100])
+
     when "pwd"
-      require 'davclient/dav-pwd'
+      cwurl = WebDAV.CWURL
+      if(cwurl)
+        puts cwurl
+      else
+        puts "#{$0}: No working url set. Use 'dav cd url' to set url"
+      end
+
     when "cd"
       url = args[1]
+      if(url == nil)then
+        puts "#{$0} cd: Missing mandatory url."
+        exit
+      end
       begin
         WebDAV.cd(url)
         puts "Changing WebDAV URL to: " + WebDAV.CWURL
@@ -43,12 +54,15 @@ def exec_dav(args)
 
     when "propfind"
       require 'davclient/dav-propfind'
+      PropfindCLI.propfind(args[1..100])
     when "props"
       require 'davclient/dav-propfind'
+      PropfindCLI.propfind(args[1..100])
     else
       puts "Unknown command :'" + command + "'"
       print_usage
   end
+
 end
 
 if $0 == __FILE__
