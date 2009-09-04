@@ -10,11 +10,12 @@ require 'rubygems'
 require 'davclient'
 require 'optparse'
 
-module DavCLI
+class LsCLI
 
   def self.ls(args)
     options = read_options(args)
     url = args[0]
+    tmp_cwurl = WebDAV.CWURL
     if(not url)then
       url = WebDAV.CWURL
       if(not url)then
@@ -23,9 +24,10 @@ module DavCLI
         exit
       end
     else
-      WebDAV.CWURL = url
+      WebDAV.cd(url)
     end
 
+    url = WebDAV.CWURL
     WebDAV.find(url, :recursive => false ) do |item|
       if(options[:showUrl])then
         puts item.href
@@ -37,6 +39,9 @@ module DavCLI
         puts
       end
     end
+
+    # Restore CWURL
+    WebDAV.cd(tmp_cwurl)
   end
 
   private
@@ -79,5 +84,5 @@ end
 
 # Make this file an executable script
 if $0 == __FILE__
-  DavCLI.ls(ARGV)
+  LsCLI.ls(ARGV)
 end
