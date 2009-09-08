@@ -17,8 +17,9 @@ spec = Gem::Specification.new do |s|
   s.requirements << "cURL command line tool available from http://curl.haxx.se/"
   s.requirements << "Servername, username and password must be supplied in ~/.netrc file."
   s.files = ["lib/davclient.rb","lib/davclient/hpricot_extensions.rb",
-             "lib/davclient/curl_commands.rb", "bin/dav",
-              "lib/davclient/dav-ls.rb", "lib/davclient/dav-propfind.rb"]
+             "lib/davclient/curl_commands.rb", "bin/dav", "lib/davclient/davcli.rb",
+             "lib/davclient/dav-put.rb", "lib/davclient/dav-ls.rb",
+             "lib/davclient/dav-propfind.rb"]
   s.executables = ["dav"]
   s.require_path = "lib"
   s.rubyforge_project = "davclient"
