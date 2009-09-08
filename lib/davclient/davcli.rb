@@ -89,6 +89,7 @@ class DavCLI
     puts "   cd        Change current working url"
     puts "   cp        Copy resource"
     puts "   mv        Move resource"
+    puts "   rm        Remove resource"
     puts "   propfind  Print webdav properties for url"
     puts "   mkcol     Make collection"
     puts "   options   Display webservers WebDAV options"
@@ -135,6 +136,8 @@ class DavCLI
         delete(args)
       when "del"
         delete(args)
+      when "rm"
+        delete(args)
       when "propfind"
         propfind(args)
       when "props"
@@ -143,7 +146,7 @@ class DavCLI
         options(args)
       else
         puts "Unknown command :'" + command + "'"
-        print_usage
+        print_dav_usage
       end
   end
 
