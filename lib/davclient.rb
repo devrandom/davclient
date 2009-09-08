@@ -266,7 +266,18 @@ module WebDAV
     return response
   end
 
+  # Copy resources
+  def self.cp(src,dest)
+    puts "WebDAV.cp(): TO BE IMPLEMENTED"
+  end
+
   # Delete resource
+  #
+  # Examples:
+  #
+  #   WebDAV.cd("https://example.org/folder")
+  #   WebDAV.mkcol("subfolder")
+  #   WebDAV.delete("subfolder")
   def self.delete(url)
 
     if(not(url =~ /^http.?:\/\//))then
@@ -285,13 +296,13 @@ module WebDAV
     response = exec_curl(curl_command)
 
     if(response  == "")then
-      return false
+      return url
     end
     if(not(response =~ /200 OK/)) then
       puts "Error:\nRequest:\n" + curl_command + "\n\nResponse: " + response
       return false
     end
-    return true
+    return url
   end
 
 
