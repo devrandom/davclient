@@ -67,7 +67,16 @@ class DavCLI
     if(args.size == 2 )
       WebDAV.cp(args[0], args[1])
     else
-      puts "#{$0}: usage '#{$0} copy src dest"
+      puts "#{$0}: usage '#{$0} cp src dest"
+    end
+  end
+
+
+  def self.mv(args)
+    if(args.size == 2 )
+      WebDAV.mv(args[0], args[1])
+    else
+      puts "#{$0}: usage '#{$0} copy mv dest"
     end
   end
 
@@ -79,6 +88,7 @@ class DavCLI
     puts "   pwd       Print current working url"
     puts "   cd        Change current working url"
     puts "   cp        Copy resource"
+    puts "   mv        Move resource"
     puts "   propfind  Print webdav properties for url"
     puts "   mkcol     Make collection"
     puts "   options   Display webservers WebDAV options"
@@ -109,6 +119,12 @@ class DavCLI
         cd(args)
       when "cp"
         cp(args)
+      when "copy"
+        cp(args)
+      when "mv"
+        mv(args)
+      when "move"
+        mv(args)
       when "mkcol"
          mkcol(args)
       when "mkdir"
