@@ -78,6 +78,7 @@ class DavCLI
     puts "   ls        List files on webdav server"
     puts "   pwd       Print current working url"
     puts "   cd        Change current working url"
+    puts "   cp        Copy resource"
     puts "   propfind  Print webdav properties for url"
     puts "   mkcol     Make collection"
     puts "   options   Display webservers WebDAV options"
