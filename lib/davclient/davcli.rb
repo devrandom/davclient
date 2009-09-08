@@ -55,6 +55,22 @@ class DavCLI
     end
   end
 
+  def self.propfind(args)
+    PropfindCLI.propfind(args)
+  end
+
+  def self.ls(args)
+    LsCLI.ls(args)
+  end
+
+  def self.cp(args)
+    if(args.size == 2 )
+      WebDAV.cp(args[0], args[1])
+    else
+      puts "#{$0}: usage '#{$0} copy src dest"
+    end
+  end
+
   def self.print_dav_usage
     puts "usage: #{$0} COMMAND [ARGS]"
     puts ""
@@ -90,6 +106,8 @@ class DavCLI
         pwd(args)
       when "cd"
         cd(args)
+      when "cp"
+        cp(args)
       when "mkcol"
          mkcol(args)
       when "mkdir"
@@ -104,21 +122,12 @@ class DavCLI
         propfind(args)
       when "props"
         propfind(args)
-        # PropfindCLI.propfind(args)
       when "options"
         options(args)
       else
         puts "Unknown command :'" + command + "'"
         print_usage
       end
-  end
-
-  def self.propfind(args)
-    PropfindCLI.propfind(args)
-  end
-
-  def self.ls(args)
-    LsCLI.ls(args)
   end
 
 end

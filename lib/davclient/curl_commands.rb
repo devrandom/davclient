@@ -50,3 +50,13 @@ EOF
 CURL_MKCOL = remove_newlines(curl_mkcol_cmd)
 
 CURL_OPTIONS = "#{$curl} -i -X OPTIONS --netrc "
+
+curl_copy = <<EOF
+#{$curl}
+  --request COPY
+  --header 'Content-Type: text/xml; charset="utf-8"'
+  --header 'Destination: <!--destination-->'
+  --netrc
+EOF
+
+CURL_COPY  = remove_newlines(curl_copy)

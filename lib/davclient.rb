@@ -51,7 +51,7 @@ module WebDAV
       cwurl = Pathname.new(self.CWURL)
       cwurl = cwurl + url
       url = cwurl.to_s
-      url = url + "/" if(not(url =~ /\/$/))
+      # url = url + "/" if(not(url =~ /\/$/))
 
       if(not(url =~ /^http.?:\/\//))then
         warn "#{$0}: Error: illegal url: " + url
@@ -70,6 +70,7 @@ module WebDAV
   #   WebDAV.cd("../folder")
   def self.cd(url)
     url = absoluteUrl(url)
+    url = url + "/" if(not(url =~ /\/$/))
 
     resource = WebDAV.propfind(url)
     if(resource and resource.isCollection?)then
@@ -144,7 +145,7 @@ module WebDAV
     items.each do |item|
 
       # Only return root item if folder
-      if(item.href == url) then
+      if(item.href == url or item.href == url + "/" ) then
         return item
       end
     end
@@ -237,7 +238,6 @@ module WebDAV
   # Make collection
   # Accepts relative url's
   def self.mkcol(*args) # url, props)
-    url = ""
     url = args[0]
     props = args[3]
     url = absoluteUrl(url)
@@ -253,10 +253,34 @@ module WebDAV
     return response
   end
 
-  # Copy resources
-  def self.cp(src,dest)
-    puts "WebDAV.cp(): TO BE IMPLEMENTED"
+  # Returns true if resource exists
+  def self.exists?(url)
+    url = absoluteUrl(url)
+    props = WebDAV.propfind(url)
+    if(props.to_s.size == 0)then
+      return false
+    else
+      return true
+    end
+  end
 
+  # Copy resources
+  #
+  # Examples:
+  #
+  #     WebDAV.cp("src.html","https://example.org/destination/destination.html"
+  def self.cp(src,dest)
+    srcUrl = absoluteUrl(src)
+    destUrl = absoluteUrl(dest)
+
+    # puts "DEBUG: " + srcUrl + " => " + destUrl
+    curl_command = CURL_COPY.sub("<!--destination-->", destUrl) + " " + srcUrl
+    response = exec_curl(curl_command)
+
+    if(response  == "")then
+      return destUrl
+    end
+    return false
   end
 
   # Delete resource

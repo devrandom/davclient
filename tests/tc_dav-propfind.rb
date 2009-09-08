@@ -20,8 +20,14 @@ class TestPropfind < Test::Unit::TestCase
     url = "https://vortex-dav.uio.no/brukere/thomasfl/"
     props = WebDAV.propfind(url)
     assert props.to_s.size > 1000
+
     props = WebDAV.propfind("..")
     assert props.to_s.size > 1000
+
+    url = "https://vortex-dav.uio.no/brukere/"
+    props = WebDAV.propfind("../../brukere/")
+    assert props.to_s.size > 1000
+
   end
 
   def test_propfind_command_line

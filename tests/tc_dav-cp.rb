@@ -19,15 +19,35 @@ class TestCP < Test::Unit::TestCase
     $DEBUG = false
     src = "https://vortex-dav.uio.no/brukere/thomasfl/testfile.html"
     dest = "https://vortex-dav.uio.no/brukere/thomasfl/testfile_copy.html"
+    WebDAV.delete(dest)
+    assert !WebDAV.exists?(dest)
+
     WebDAV.cp(src,dest)
-    # TODO props = WebDAV.propfind(dest)
+    assert WebDAV.exists?(dest)
   end
 
-  def zzzzz_test_propfind_command_line
+  def test_propfind_command_line
     src = "https://vortex-dav.uio.no/brukere/thomasfl/testfile.html"
     dest = "https://vortex-dav.uio.no/brukere/thomasfl/testfile_copy.html"
+    WebDAV.delete(dest)
+    assert !WebDAV.exists?(dest)
+
     out, err = cp([src,dest])
-    puts out
+    assert WebDAV.exists?(dest)
+
+    # Relative url
+    WebDAV.delete(dest)
+    assert !WebDAV.exists?(dest)
+
+
+    WebDAV.cd("https://vortex-dav.uio.no/brukere/thomasfl/")
+    dest = "testfile_copy.html"
+
+#    puts "Siste test:"
+    out, err = cp([src,dest])
+    assert WebDAV.exists?(dest)
+#    puts err
+#    puts out
   end
 
 
