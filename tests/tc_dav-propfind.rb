@@ -2,7 +2,7 @@
 require 'test_helper'
 require 'rubygems'
 require 'davclient'
-require 'davclient/dav-propfind'
+require 'davclient/davcli'
 require 'test/unit'
 require 'test/zentest_assertions'
 
@@ -10,7 +10,7 @@ class TestPropfind < Test::Unit::TestCase
 
   def props(*args)
     out, err = util_capture do
-      PropfindCLI.propfind(*args)
+      DavCLI.propfind(*args)
     end
     return [out.string, err.string]
   end
@@ -26,7 +26,8 @@ class TestPropfind < Test::Unit::TestCase
     url = "https://vortex-dav.uio.no/brukere/thomasfl/"
     # out, err = props(["--xml", url])
     out, err = props([url])
-    puts out
+    # puts out.size
+    assert out.size > 10000
   end
 
 

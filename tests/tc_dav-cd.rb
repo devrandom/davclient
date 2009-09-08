@@ -3,29 +3,29 @@ require 'rubygems'
 require 'test/unit'
 require 'test_helper'
 require 'davclient'
-require 'davclient/dav-cd'
+require 'davclient/davcli'
 require 'test/zentest_assertions'
 
 class TestWDavCd < Test::Unit::TestCase
 
-  def cd(args)
+  def cd(*args)
     out, err = util_capture do
-      WebDAV.cd(args)
+      DavCLI.cd(*args)
     end
     return [out.string, err.string]
   end
 
   def test_basic_cd
     url = "https://vortex-dav.uio.no/prosjekter/it-avisa/nyheter/2006/"
-    out, err = cd(url)
+    out, err = cd([url])
     assert_equal url, WebDAV.CWURL
   end
 
   def test_pathname
     url = "https://vortex-dav.uio.no/prosjekter/it-avisa/nyheter/2006/"
-    out, err = cd(url)
+    out, err = cd([url])
     assert_equal url, WebDAV.CWURL
-    out, err = cd("..")
+    out, err = cd([".."])
     assert_equal url = "https://vortex-dav.uio.no/prosjekter/it-avisa/nyheter/", WebDAV.CWURL
 
     out, err = WebDAV.cd("../../../brukere/thomasfl/")
@@ -33,7 +33,7 @@ class TestWDavCd < Test::Unit::TestCase
 
     exception = false
     begin
-      out, err = WebDAV.cd("../../../../../../")
+      out, err = WebDAV.cd(["../../../../../../"])
     rescue Exception
       exception = true
     end
