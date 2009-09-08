@@ -1,7 +1,6 @@
 require 'davclient/dav-ls'
 require 'davclient/dav-put'
 require 'davclient/dav-propfind'
-require 'pp'
 
 # Handle the 'dav' command line commands
 
@@ -18,8 +17,6 @@ class DavCLI
   end
 
   def self.cd(args)
-    pp args
-
     url = args[0]
     if(url == nil)then
       puts "#{$0} cd: Missing mandatory url."
