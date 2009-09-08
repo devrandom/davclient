@@ -60,3 +60,14 @@ curl_copy = <<EOF
 EOF
 
 CURL_COPY  = remove_newlines(curl_copy)
+
+
+curl_move = <<EOF
+#{$curl}
+  --request MOVE
+  --header 'Content-Type: text/xml; charset="utf-8"'
+  --header 'Destination: <!--destination-->'
+  --netrc
+EOF
+
+CURL_MOVE  = remove_newlines(curl_move)

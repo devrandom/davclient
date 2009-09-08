@@ -6,45 +6,59 @@ require 'davclient/davcli'
 require 'test/unit'
 require 'test/zentest_assertions'
 
-class TestCP < Test::Unit::TestCase
+class TestMove < Test::Unit::TestCase
 
-  def cp(*args)
+  def mv(*args)
     out, err = util_capture do
-      DavCLI.cp(*args)
+      DavCLI.mv(*args)
     end
     return [out.string, err.string]
   end
 
-  def test_cp
+  def test_mv
     $DEBUG = false
     src = "https://vortex-dav.uio.no/brukere/thomasfl/testfile.html"
     dest = "https://vortex-dav.uio.no/brukere/thomasfl/testfile_copy.html"
     WebDAV.delete(dest)
     assert !WebDAV.exists?(dest)
 
-    WebDAV.cp(src,dest)
+    WebDAV.mv(src,dest)
     assert WebDAV.exists?(dest)
+    assert !WebDAV.exists?(src)
+
+    WebDAV.mv(dest, src)
+
+    assert !WebDAV.exists?(dest)
+    assert WebDAV.exists?(src)
   end
 
-  def test_propfind_command_line
+  def test_mv_command_line
     src = "https://vortex-dav.uio.no/brukere/thomasfl/testfile.html"
     dest = "https://vortex-dav.uio.no/brukere/thomasfl/testfile_copy.html"
     WebDAV.delete(dest)
     assert !WebDAV.exists?(dest)
 
-    out, err = cp([src,dest])
+    out, err = mv([src,dest])
     assert WebDAV.exists?(dest)
+    assert !WebDAV.exists?(src)
 
-    # Relative url
-    WebDAV.delete(dest)
+    out, err = mv([dest, src])
     assert !WebDAV.exists?(dest)
+    assert WebDAV.exists?(src)
 
+  end
 
+  def test_mv_relative
     WebDAV.cd("https://vortex-dav.uio.no/brukere/thomasfl/")
-    dest = "testfile_copy.html"
 
-    out, err = cp([src,dest])
+    src = "testfile.html"
+    dest = "testfile.html"
+
+    out, err = mv([src,dest])
     assert WebDAV.exists?(dest)
+
+    out, err = mv([dest, src])
+    assert WebDAV.exists?(src)
   end
 
 

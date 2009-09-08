@@ -283,6 +283,27 @@ module WebDAV
     return false
   end
 
+
+  # Move resources
+  #
+  # Examples:
+  #
+  #     WebDAV.mv("src.html","https://example.org/destination/destination.html"
+  def self.mv(src,dest)
+    srcUrl = absoluteUrl(src)
+    destUrl = absoluteUrl(dest)
+
+    # puts "DEBUG: " + srcUrl + " => " + destUrl
+    curl_command = CURL_MOVE.sub("<!--destination-->", destUrl) + " " + srcUrl
+    response = exec_curl(curl_command)
+
+    if(response  == "")then
+      return destUrl
+    end
+    return false
+  end
+
+
   # Delete resource
   #
   # Examples:
