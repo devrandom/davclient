@@ -32,9 +32,7 @@ class TestPropfind < Test::Unit::TestCase
 
   def test_propfind_command_line
     url = "https://vortex-dav.uio.no/brukere/thomasfl/"
-    # out, err = props(["--xml", url])
     out, err = props([url])
-    # puts out.size
     assert out.size > 10000
   end
 
