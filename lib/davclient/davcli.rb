@@ -6,6 +6,16 @@ require 'davclient/dav-propfind'
 
 class DavCLI
 
+  def self.cat(args)
+    if(args.size == 1)
+      url = args[0]
+      puts WebDAV.get(url)
+    else
+      puts "Illegal arguments: " + args[1..100].join(" ")
+      puts "#{$0}: usage '#{$0} cat [url|filename]"
+    end
+  end
+
   def self.pwd(args)
     cwurl = WebDAV.CWURL
     if(cwurl)
@@ -90,6 +100,7 @@ class DavCLI
     puts "   cp        Copy resource"
     puts "   mv        Move resource"
     puts "   rm        Remove resource"
+    puts "   cat       Print content of resource"
     puts "   propfind  Print webdav properties for url"
     puts "   mkcol     Make collection"
     puts "   options   Display webservers WebDAV options"
@@ -112,6 +123,8 @@ class DavCLI
 
     args = args[1..100]
     case command
+      when "cat" then
+        cat(args)
       when "ls" then
         LsCLI.ls(args)
       when "pwd"
