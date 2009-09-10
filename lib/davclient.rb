@@ -93,8 +93,12 @@ module WebDAV
   # Example:
   #
   #    html = WebDAV.get(url)
-  def self.get(href)
-    curl_command = "#{$curl} --netrc " + href
+  #
+  #    html = WebDAV.get("file_in_current_working_folder.html")
+  def self.get(url)
+    url = absoluteUrl(url)
+
+    curl_command = "#{$curl} --netrc " + url
     return exec_curl(curl_command)
   end
 
