@@ -28,16 +28,35 @@ class LsCLI
     end
 
     url = WebDAV.CWURL
+    names = []
+    previous_path = ""
+
     WebDAV.find(url, :recursive => false ) do |item|
       if(options[:showUrl])then
         puts item.href
       elsif(options[:longFormat])
-
+        puts item.href # TODO Show more info when longFormat option is used
       else
-        print item.basename
-        print "/" if item.isCollection?
-        puts
+        # Collect all names in a folder and show them with multiple columns
+
+        name = item.basename
+        if(item.isCollection?)
+          path = item.href.sub(/#{name}\/$/,"")
+        else
+          path = item.href.sub(/#{name}$/,"")
+        end
+
+        name +=  "/" if item.isCollection?
+
+        # puts name.ljust(35) + path
+        names << name
       end
+    end
+
+    if(options[:oneColumn])
+      puts names.sort.join("\n")
+    else
+      multicolumn_print(names.sort)
     end
 
     # Restore CWURL
@@ -58,14 +77,21 @@ class LsCLI
       end
 
       options[:longFormat] = false
-      opts.on( '-l', "List in long format" ) do
+      opts.on( '-l', '--long',"List in long format" ) do
         options[:longFormat] = true
       end
 
       options[:showUrl] = false
-      opts.on('-a', "Include full url in names.") do
+      opts.on('-u', '--url',"Include full url in names.") do
         options[:showUrl] = true
       end
+
+
+      options[:oneColumn] = false
+      opts.on( '-1', "Force output to be one entry per line" ) do
+        options[:oneColumn] = true
+      end
+
 
     end
 
@@ -78,6 +104,42 @@ class LsCLI
     end
 
     return options
+  end
+
+
+  # Used to make adjust to number of columns to terminal size
+  # when printing names of files and folders
+  def self.terminal_size
+    `stty size`.split.map { |x| x.to_i }.reverse
+  end
+
+  def self.max_string_size(string_array)
+    max_size = 0
+    string_array.each do |name|
+      if(name.size > max_size)
+        max_size = name.size
+      end
+    end
+    return max_size
+  end
+
+  # Spread output across multiple columns like unix ls does.
+  def self.multicolumn_print(files)
+
+    terminal_width, terminal_height = terminal_size()
+    max_filename_size = max_string_size(files)
+    columns = terminal_width / max_filename_size
+    column_width = max_filename_size + 2
+    row_size = (files.size.to_f / columns.to_f).ceil
+
+    row_size.times do |row_number|
+      columns.times do |column_number|
+        filename = files[row_number+(column_number*row_size)].to_s + ""
+        print filename.ljust(column_width)
+      end
+      print "\n"
+    end
+
   end
 
 end
