@@ -4,7 +4,7 @@ require 'rbconfig'
 
 spec = Gem::Specification.new do |s|
   s.name = "davclient"
-  s.version = "0.0.3"
+  s.version = "0.0.4"
   s.author = "Thomas Flemming"
   s.email = "thomasfl@usit.uio.no"
   s.homepage = "http://folk.uio.no/thomasfl"
@@ -24,6 +24,6 @@ spec = Gem::Specification.new do |s|
   s.has_rdoc = true
   s.extra_rdoc_files = ["README.rdoc"]
   s.add_dependency("hpricot", ">= 0.6")
-  s.add_dependency("zentest", ">= 3.5") # For tests
+  s.add_dependency("ZenTest", ">= 3.5") # For tests
 end
 
