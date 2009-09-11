@@ -29,13 +29,20 @@ class LsCLI
 
     url = WebDAV.CWURL
     names = []
-    previous_path = ""
+    items_data = { }
+#    previous_path = ""
 
     WebDAV.find(url, :recursive => false ) do |item|
       if(options[:showUrl])then
         puts item.href
+
       elsif(options[:longFormat])
-        puts item.href # TODO Show more info when longFormat option is used
+        locked = item.search("d:lockdiscovery").search("d:owner").inner_text
+        items_data.merge!(item.basename => [item.href,
+                                            locked,
+                                            item.getlastmodified,
+                                            item.getcontentlength])
+
       else
         # Collect all names in a folder and show them with multiple columns
 
@@ -55,6 +62,17 @@ class LsCLI
 
     if(options[:oneColumn])
       puts names.sort.join("\n")
+
+    elsif(options[:longFormat])
+      max_key_size = max_string_size(items_data.keys)
+      items_data.keys.sort.each do |key|
+        locked = ""
+        locked = "Locked by: " + items_data[key][1] if(items_data[key][1] != "")
+        puts key.ljust(max_key_size) + "  " + items_data[key][2] +
+          "  " + items_data[key][3].rjust(12) +
+          "  " + locked
+      end
+
     else
       multicolumn_print(names.sort)
     end
@@ -114,18 +132,15 @@ class LsCLI
   end
 
   def self.max_string_size(string_array)
-    max_size = 0
-    string_array.each do |name|
-      if(name.size > max_size)
-        max_size = name.size
-      end
-    end
-    return max_size
+    return string_array.max  {|a,b| a.length <=> b.length }.size
   end
+
 
   # Spread output across multiple columns like unix ls does.
   def self.multicolumn_print(files)
-
+    if(files.size == 0)
+      return
+    end
     terminal_width, terminal_height = terminal_size()
     max_filename_size = max_string_size(files)
     columns = terminal_width / max_filename_size
