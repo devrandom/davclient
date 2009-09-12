@@ -6,6 +6,22 @@ require 'davclient/dav-propfind'
 
 class DavCLI
 
+  def self.edit(args)
+    if(args.size == 1)
+      url = args[0]
+      content = WebDAV.get(url)
+      tmp_filename = WebDAV.tmp_folder + File.basename(url)
+      File.open(tmp_filename, 'w') {|f| f.write(content) }
+      system("emacs --quick -nw " + tmp_filename)
+      new_content = nil
+      File.open(tmp_filename, 'r') {|f| new_content = f.read() }
+      WebDAV.put_string(url, new_content)
+    else
+      puts "Illegal arguments: " + args[1..100].join(" ")
+      puts "#{$0}: usage '#{$0} edit [url|filename]"
+    end
+  end
+
   def self.cat(args)
     if(args.size == 1)
       url = args[0]
@@ -104,12 +120,16 @@ class DavCLI
     puts "   propfind  Print webdav properties for url"
     puts "   mkcol     Make collection"
     puts "   options   Display webservers WebDAV options"
+    puts "   edit      Edit contents of remote file with editor"
     puts ""
     puts "See '#{$0} COMMAND -h' for more information on a specific command."
     exit
   end
 
   def self.dav(args)
+
+    $0 = $0.sub(/.*\//,"").sub(/.rb$/,"")
+
     command =  args[0]
 
     if(command == "-h" or command =~ /help/ or command =~ /\?/) then
@@ -123,6 +143,8 @@ class DavCLI
 
     args = args[1..100]
     case command
+      when "edit" then
+        edit(args)
       when "cat" then
         cat(args)
       when "ls" then

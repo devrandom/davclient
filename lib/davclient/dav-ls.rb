@@ -6,7 +6,7 @@
 #
 #     ruby dav-ls  [options][url]
 
-require 'rubygems'
+# require 'rubygems'
 require 'davclient'
 require 'optparse'
 
@@ -24,7 +24,7 @@ class LsCLI
         exit
       end
     else
-      WebDAV.cd(url)
+      WebDAV.cd(url)  # TODO Hva er denne til?. Crasher 'dav-ls filnavn.html'!
     end
 
     url = WebDAV.CWURL

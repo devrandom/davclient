@@ -19,7 +19,7 @@ require 'davclient/curl_commands'
 module WebDAV
 
   # :stopdoc:
-  VERSION = '0.0.5'
+  VERSION = '0.0.4'
   # :startdoc:
 
   # Returns the version string for the library.
@@ -87,6 +87,7 @@ module WebDAV
     $CWURL = url # Used by tests
     File.open(cwurl_filename, 'w') {|f| f.write(url) }
   end
+
 
   # Get content of resource as string
   #
@@ -390,14 +391,19 @@ module WebDAV
   end
   # :startdoc:
 
+  # Returns name of temp folder we're using
+  # TODO: Move this to utility library
+  def self.tmp_folder
+    tmp_file = Tempfile.new("dummy").path
+    basename = File.basename(tmp_file)
+    return  tmp_file.gsub(basename, "")
+  end
+
   private
 
   # Returns filename /tmp/cwurl.#pid that holds the current working directory
   # for the shell's pid
   def self.cwurl_filename
-    tmp_file = Tempfile.new("dummy").path
-    basename = File.basename(tmp_file)
-    tmp_folder = tmp_file.gsub(basename, "")
     return tmp_folder +  "cwurl." + Process.ppid.to_s
   end
 
