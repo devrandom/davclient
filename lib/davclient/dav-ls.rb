@@ -30,7 +30,6 @@ class LsCLI
     url = WebDAV.CWURL
     names = []
     items_data = { }
-#    previous_path = ""
 
     WebDAV.find(url, :recursive => false ) do |item|
       if(options[:showUrl])then
@@ -150,7 +149,11 @@ class LsCLI
     row_size.times do |row_number|
       columns.times do |column_number|
         filename = files[row_number+(column_number*row_size)].to_s + ""
-        print filename.ljust(column_width)
+        if(column_number == columns - 1)then
+          print filename
+        else
+          print filename.ljust(column_width)
+        end
       end
       print "\n"
     end
