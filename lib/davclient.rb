@@ -61,6 +61,18 @@ module WebDAV
     return url
   end
 
+  # Returns true if url is a collection
+  def self.isCollection?(url)
+    url = absoluteUrl(url)
+    url = url + "/" if(not(url =~ /\/$/))
+    resource = WebDAV.propfind(url)
+    if(resource == nil)
+      return false
+    else
+      return resource.isCollection?
+    end
+  end
+
   # Change current working url. Takes relative pathnames.
   #
   # Examples:
@@ -71,13 +83,11 @@ module WebDAV
   def self.cd(url)
     url = absoluteUrl(url)
     url = url + "/" if(not(url =~ /\/$/))
-
     resource = WebDAV.propfind(url)
     if(resource and resource.isCollection?)then
       WebDAV.CWURL = url
     else
-      # TODO Make proper exception
-      raise Exception, "cd: URL '#{cwurl} is not a WebDAV collection."
+      raise Exception, "#{$0} cd: #{url}: No such collection on remote server."
     end
   end
 
@@ -347,24 +357,29 @@ module WebDAV
   end
 
 
+
   # Puts content of string to file on server with url
   #
   # Example:
   #
   #   WebDAV.put("https://dav.webdav.org/file.html", "<html><h1>Test</h1></html>"
-  def self.put_string(url, html)
+  def self.put_string(url,str)
     url = absoluteUrl(url)
 
     if(url =~ /\/$/)then
       raise "Error: WebDAV.put_html: url can not be a collection (folder)."
     end
 
-    tmp_dir = "/tmp/" + rand.to_s[2..10] + "/"
-    FileUtils.mkdir_p tmp_dir
-    tmp_file = tmp_dir + "webdav.tmp"
-    File.open(tmp_file, 'w') {|f| f.write(html) }
+    filename = string2tempfile(str)
+    put(url,filename)
+  end
 
-    curl_command = "#{$curl} --netrc --silent --upload-file #{tmp_file} #{url}"
+
+  # Upload local file
+  def self.put(url, file_name)
+    url = absoluteUrl(url)
+
+    curl_command = "#{$curl} --netrc --silent --upload-file #{file_name} #{url}"
     response = exec_curl(curl_command)
     if(response != "" and not(response =~ /200 OK/)) then
       raise "Error:\n WebDAV.put: WebDAV Request:\n" + curl_command + "\n\nResponse: " + response
@@ -379,18 +394,6 @@ module WebDAV
     return self.exec_curl(CURL_OPTIONS + url )
   end
 
-  # :stopdoc:
-
-  # TODO put file utility
-  # TESTME
-  def put_file(filename, href)
-    # TODO Detect if href is a collection or not??
-    curl_command = "#{$curl} --netrc --request PUT #{filename} #{href}"
-    return exec_curl(curl_command)
-    # return execute_curl_cmd(curl_put_cmd)
-  end
-  # :startdoc:
-
   # Returns name of temp folder we're using
   # TODO: Move this to utility library
   def self.tmp_folder
@@ -399,13 +402,26 @@ module WebDAV
     return  tmp_file.gsub(basename, "")
   end
 
-  private
+
+  # TODO: Move this to utility library
+  # Write string to tempfile and returns filename
+  def self.string2tempfile(str)
+    tmp_dir = tmp_folder + rand.to_s[2..10] + "/"
+    FileUtils.mkdir_p tmp_dir
+    tmp_file = tmp_dir + "webdav.tmp"
+    File.open(tmp_file, 'w') {|f| f.write(str) }
+    return tmp_file
+  end
+
+
 
   # Returns filename /tmp/cwurl.#pid that holds the current working directory
   # for the shell's pid
   def self.cwurl_filename
     return tmp_folder +  "cwurl." + Process.ppid.to_s
   end
+
+  private
 
   # Display instructions for adding credentials to .netrc file
   def self.display_unauthorized_message(href)
