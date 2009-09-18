@@ -22,7 +22,7 @@ class TestDavCat < Test::Unit::TestCase
     content = WebDAV.get(url)
 
     out, err = cat([url])
-    assert_equal  content + "\n", out
+    assert_equal  content , out
   end
 
   def test_relative_urls
