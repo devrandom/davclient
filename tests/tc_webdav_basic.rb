@@ -8,26 +8,25 @@ $curl = "/usr/local/bin/curl"
 
 class TestWebDAVLib < Test::Unit::TestCase
 
-  def test_find_recursive
-    count = 0
-    url = "https://vortex-dav.uio.no/brukere/thomasfl/anniken_2007/sophos/"
-    WebDAV.find(url, :recursive => true ) do | item |
-      if(item.basename == ".DS_Store")
-        count += 1
-      end
-    end
-    assert_equal(1, count)
-  end
 
   def test_find
     url = "https://vortex-dav.uio.no/prosjekter/it-avisa/nyheter/"
     items = WebDAV.find(url)
-
     assert(items.size > 10 )
 
-    items = WebDAV.find(url, :type => "collection")
+    antall = items.size
+    WebDAV.cd(url)
+    items = WebDAV.find()
+    assert_equal(antall, items.size )
 
+    assert_raise RuntimeError do
+      WebDAV.CWURL = nil
+      items = WebDAV.find()
+    end
+
+    items = WebDAV.find(url, :type => "collection")
     assert( items.size > 9 )
+
     counter = 0
     WebDAV.find(url, :type => "collection") do |item|
       counter += 1
@@ -39,6 +38,21 @@ class TestWebDAVLib < Test::Unit::TestCase
       counter += 1
     end
     assert(counter > 9 )
+  end
+
+end
+
+class BullShit
+
+  def test_find_recursive
+    count = 0
+    url = "https://vortex-dav.uio.no/brukere/thomasfl/anniken_2007/sophos/"
+    WebDAV.find(url, :recursive => true ) do | item |
+      if(item.basename == ".DS_Store")
+        count += 1
+      end
+    end
+    assert_equal(1, count)
   end
 
   def test_get
