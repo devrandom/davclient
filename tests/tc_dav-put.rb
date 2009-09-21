@@ -26,7 +26,6 @@ class TestPutCLI < Test::Unit::TestCase
     @filename = "/tmp/" + @basename
     @url = "https://vortex-dav.uio.no/brukere/thomasfl/"
     @html = "<html><head><title>Testfile</title></head><body><h1>Testfile</h1></body></html>"
-    # File.open(@filename, 'w') {|f| f.write(@html) }
     create_file(@filename, @html)
     WebDAV.delete(@url + @basename)
   end
@@ -129,6 +128,5 @@ class TestPutCLI < Test::Unit::TestCase
     end
 
   end
-
 
 end
