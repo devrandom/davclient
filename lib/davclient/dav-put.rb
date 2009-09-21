@@ -71,6 +71,9 @@ class PutCLI
         count = 0
         args.each do | arg|
           # puts "arg:" + arg
+          if(File.ftype(arg) == 'directory')
+            raise "Upload directories not implemented"
+          end
           if(File.exists?(arg))
             basename = File.basename(arg)
             WebDAV.put(url + basename, arg)
