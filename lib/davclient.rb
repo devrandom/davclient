@@ -54,8 +54,7 @@ module WebDAV
       # url = url + "/" if(not(url =~ /\/$/))
 
       if(not(url =~ /^http.?:\/\//))then
-        warn "#{$0}: Error: illegal url: " + url
-        exit
+        raise "illegal url: " + url
       end
     end
     return url
@@ -182,8 +181,30 @@ module WebDAV
   #  end
   #
   def self.find(*args, &block)
-    href = args[0]
-    options = args[1]
+
+    if(args.size == 0)
+      href = self.CWURL
+    elsif(args.size == 1)
+      if(args[0].class == String)
+        href = args[0]
+      else
+        options = args[0]
+      end
+    elsif(args.size == 2)
+      href = args[0]
+      options = args[1]
+    else
+      raise "Illegal number of arguments."
+    end
+
+    if(href == nil )
+      if(WebDAV.CWURL == nil)
+        raise "no current working url set"
+      else
+        href = WebDAV.CWURL
+      end
+    end
+
     type = nil
     recursive = false
     if(options)then
@@ -219,7 +240,7 @@ module WebDAV
 
         else
           # Filter result set
-          if((type == "collection" or type == "folder") and item.collection )then
+          if((type == "collection" or type == "folder" or type == "directory") and item.isCollection? )then
             items_filtered.push(item)
             if(block) then
               yield item
