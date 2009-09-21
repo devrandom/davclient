@@ -5,8 +5,14 @@
 
 == DESCRIPTION:
 
+A scriptable WebDAV command line client for
+
 WebDAV command line client written in Ruby for managing content on
 webservers that support the WebDAV extensions.
+
+This is still very much work in progress. Especially the command line interface
+is changed a lot recently. The ruby library however is starting to settle.
+
 
 == Requirements
 
@@ -70,7 +76,20 @@ authentication. DavClient instead uses the command line tool 'curl' to do all th
 authentication and networking. To avoid handling authentication all togheter, curl
 are told to look up all usernames and passwords are in a file named ~/.netrc.
 
-The command 'dav' is  non-interactive and inspired by git, making it suitable for
+The command line utility 'dav' is non-interactive and inspired by git, making it more suitable for
 use in scripts. If you can script in Ruby, the examples folder includes sample
 scripts using the davclient Ruby library.
+
+== Licence
+
+DavClient (davclient and the dav utility) is copyrighted free software by Thomas Flemming
+<thomas dot flemming at usit.uio.no> and contributors. You can redistribute it
+and/or modify it under either the terms of the GPL2 or the conditions below:
+
+See LICENCE file for details.
+
+== Comments
+
+Feel free to contact me at thomas dot flemming at usit.uio.no.
+
 
