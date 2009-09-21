@@ -6,7 +6,7 @@
 
 spec = Gem::Specification.new do |s|
   s.name = "davclient"
-  s.version = "0.0.4"
+  s.version = "0.0.5"
   s.author = "Thomas Flemming"
   s.email = "thomasfl@usit.uio.no"
   s.homepage = "http://folk.uio.no/thomasfl"
