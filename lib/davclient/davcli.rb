@@ -2,7 +2,7 @@ require 'davclient/dav-ls'
 require 'davclient/dav-put'
 require 'davclient/dav-propfind'
 
-# Handle the 'dav' command line commands
+# DavClient Command Line Utility
 
 class DavCLI
 
@@ -34,61 +34,11 @@ class DavCLI
     end
   end
 
-  # -------------
-  # put: merge this with content of dav-put.rb
-  # --------------
-  #####  put multiple files recursively #######
-  def self.handle_directory_element(name)
-    path = Pathname.new(Pathname.pwd)
-    path = path + arg
-    name = path.to_s
-    type = File.ftype(name)
-
-    puts "args: " + arg
-    puts "file: " + name
-    puts "type: " + type
-  end
-
-  def self.put_file(local_file)
-    puts "To be implemented"
-
-  end
-
-  def self.put_folder(local_folder)
-    puts "==> putting folder"
-    Dir.foreach(local_folder) do |x|
-      puts "Dir content: " + x.to_s
-    end
-  end
-
-
-  ## Put function
-  ##
-  ## TODO:
-  ##
-  ##  - Handle strings:
-  ##        dav put --string "test test test" dest-url|dest-filename ????
-  def self.put(args)
-    args.each do |arg|
-      path = Pathname.new(Pathname.pwd)
-      path = path + arg
-      name = path.to_s
-      type = File.ftype(name)
-
-      puts "args: " + arg
-      puts "file: " + name
-      puts "type: " + type
-      if(type == "directory")
-        put_folder(name)
-      end
-      puts ""
-    end
-
-  end
-
   # TODO
   #  - Handle glob (ie *.gif) => Tell user to quote to avoid shell glob: dav get "*.html"
   def self.get(args)
+
+    puts "DEBUG:"
     if(args.size == 1 or args.size == 2 )
       url = args[0]
       content =  WebDAV.get(url)
@@ -111,14 +61,18 @@ class DavCLI
     end
   end
 
-
   def self.cat(args)
+    if(show_help?(args))
+      puts "Usage: #{$0} cat [url|filename]"
+      puts
+      puts "Concatenate and print remote files to local terminal."
+    end
     if(args.size == 1)
       url = args[0]
       puts WebDAV.get(url)
     else
       puts "Illegal arguments: " + args[1..100].join(" ")
-      puts "#{$0}: usage '#{$0} cat [url|filename]"
+      puts "Usage: #{$0} cat [url|filename]"
     end
   end
 
