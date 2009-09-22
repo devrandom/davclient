@@ -6,8 +6,6 @@ require 'hpricot'
 # Extensions to the Hpricot XML parser.
 module Hpricot
 
-
-
   class Elem
 
     # Makes properties available as simple method calls.

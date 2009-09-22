@@ -1,9 +1,23 @@
-# For simple WebDAV scritps where namespacing is not necessary
-# require 'davclient/simple' to get a simple api
+# A minimalistic API for interacting with WebDAV servers.
+#
+# If commands needs to Simple WebDAV API for use in scripts where namespacing is not necessary.
+
+# :stopdoc:
 
 require 'davclient'
 require 'davclient/dav-ls'
 
+# :startdoc:
+
+# Change working directory.
+#
+# Examples:
+#
+#    require 'davclient/simple'
+#
+#    cd("https://example.webdav.org/collection/")
+#    content = get("index.html")
+#    print content
 def cd(args)
   WebDAV.cd(args)
 end
@@ -28,5 +42,3 @@ def get(args)
   WebDAV.get(args)
 end
 
-puts "Demo"
-cd "https://vortex-dav.uio.no/brukere/thomasfl/"
