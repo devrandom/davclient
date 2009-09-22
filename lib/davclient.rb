@@ -15,7 +15,16 @@ require 'davclient/curl_commands'
 
 # :startdoc:
 
-# WebDAV client
+# Main WebDAV client. Current working URL is stored in a tempfile named /tmp/cwurl.pid, where pid is the parent process.
+# Username an password is stored in the ~/.netrc file. This means there is no need to set up any sessions or connections.
+#
+# If a change directory command is executed with a relative path, like for instance WebDAV.cd("../collection"), it will
+# raise an exception if current working url has not been set. First a change directory command is executed it should
+# use an absolute URL, like for instance WebDAV.cd("https://www.webdav.org/collection/").
+#
+# If using an URL with a server name not found in the ~/.netrc file, instructions for adding
+# the necessary servername, username and password will be printed to stdout.
+#
 module WebDAV
 
   # :stopdoc:
@@ -28,9 +37,9 @@ module WebDAV
     VERSION
   end
 
-  # Returns current working url. Used by command line utilites
+  # Returns current working url.
   def self.CWURL
-    return $CWURL if($CWURL) # Used by tests
+    return $CWURL if($CWURL)
     cwurl = nil
     filename = cwurl_filename
     if(File.exists?(filename))
@@ -60,7 +69,11 @@ module WebDAV
     return url
   end
 
-  # Returns true if url is a collection
+  # Boolean function that returns true if url is a collection
+  #
+  # Example:
+  #
+  #    WebDAV.isCollection("../test.html") => false
   def self.isCollection?(url)
     url = absoluteUrl(url)
     url = url + "/" if(not(url =~ /\/$/))
@@ -73,6 +86,9 @@ module WebDAV
   end
 
   # Change current working url. Takes relative pathnames.
+  # First time this method is called, an absolute URL
+  # must be used. Raises exception if servername is not
+  # found in ~/.netrc file.
   #
   # Examples:
   #
@@ -90,10 +106,12 @@ module WebDAV
     end
   end
 
-  # Sets current working url by storing url in a tempfile with parent process pid
+  # Sets current working url.
+  #
+  # Current working url is stored in aa tempfile with parent process pid
   # as part of the filename.
   def self.CWURL=(url)
-    $CWURL = url # Used by tests
+    $CWURL = url
     File.open(cwurl_filename, 'w') {|f| f.write(url) }
   end
 
@@ -117,8 +135,9 @@ module WebDAV
   # Example:
   #
   #   WebDAV.proppatch("https://dav.webdav.org/folder","<contentLastModified>2007-12-12 12:00:00 GMT</contentLastModified>
-  def self.proppatch(href, property)
-    curl_command = CURL_PROPPATCH + " \""+href+"\""
+  def self.proppatch(url, property)
+    url = absoluteUrl(url)
+    curl_command = CURL_PROPPATCH + " \""+url+"\""
     curl_command = curl_command.gsub("<!--property-and-value-->",property)
     response = exec_curl(curl_command)
     if(not(response =~ /200 OK/)) then
@@ -130,7 +149,8 @@ module WebDAV
   # Get WebDAV properties
   #
   # Examples:
-  #   item = propfind(url)                - Returns a Hpricot::Elem object
+  #
+  #   item = propfind(url)                - Returns an Hpricot::Elem object
   #
   #   xml = propfind(url, :xml => true)   - Returns xml for debugging.
   def self.propfind(*args)
@@ -180,6 +200,12 @@ module WebDAV
   #    puts folder.href
   #  end
   #
+  # If no url is specified, current working url is used.
+  #
+  #       cd("https://webdav.org")
+  #       find() do |item|
+  #         print item.title
+  #       end
   def self.find(*args, &block)
 
     if(args.size == 0)
