@@ -5,9 +5,7 @@
 
 == DESCRIPTION:
 
-A scriptable WebDAV command line client for
-
-WebDAV command line client written in Ruby for managing content on
+A scriptable WebDAV command line client for Ruby for managing content on
 webservers that support the WebDAV extensions.
 
 This is still very much work in progress. Especially the command line interface
@@ -43,15 +41,62 @@ on how to add username etc. to the '~/.netrc' file.
 
 == COMMAND LINE SYNOPSIS:
 
-  >dav cd http://test.webdav.org/dav/
+  bash $ dav cd http://test.webdav.org/dav/
   http://test.webdav.org/dav/
-  >dav ls
+  bash $ dav ls
   images/
   index.html
-  >dav pwd
+  bash $ dav pwd
   http://test.webdav.org/dav/
+  bash $ get ./index.html
+  bash $ dav --help
+  usage: dav COMMAND [ARGS]
+
+  Available dav commands:
+     ls        List files on webdav server
+     pwd       Print current working url
+     cd        Change current working url
+     cp        Copy resource
+     mv        Move resource
+     rm        Remove resource
+     cat       Print content of resource
+     mkdir     Create remote collection (directory) (mkcol alias)
+     get       Download resource
+     put       Upload local file
+     propfind  Print webdav properties for url
+     mkcol     Make collection
+     options   Display webservers WebDAV options
+     edit      Edit contents of remote file with editor
+
+== USE WITH IRB:
+
+IRB can also be used as an interactive dav console:
+
+  bash $ irb -rubygems -rdavclient/simple
+  >> cd "https://webdav.org/projects/"
+  => "https://webdav.org/projects/"
+  >> pwd
+  => "https://webdav.org/projects/"
+  >> content = get "index.html"
+  => "index.html"
+  >> ls
+  index.html
+  >> cd ".."
+  => "https://webdav.org/"
+
 
 == INSTALL:
+
+If you can type the command 'curl' in your terminal window, everything is ok.
+
+DavClient uses the command line utility cURL to interact with servers.
+Curl comes preinstalled on Mac OS X. It can also be downloaded from
+http://curl.haxx.se/ . If you are using debian or ubuntu, it
+can be installed with apt-get:
+
+  sudo apt-get install curl
+
+Then install DavClient:
 
   [sudo] gem install davclient
 
@@ -59,14 +104,8 @@ or
 
   git clone git://github.com/thomasfl/davclient.git
   cd davclient
-  gem build Rakefile
-  sudo gem install davclient-x.x.x.gem
+  sudo rake install
 
-Curl comes preinstalled on Mac OS X. It can be downloaded from
-http://curl.haxx.se/ . If you are using debian or ubuntu, it
-can be installed by:
-
-  sudo apt-get install curl
 
 == Background:
 
