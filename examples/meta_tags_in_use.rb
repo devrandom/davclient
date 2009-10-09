@@ -5,7 +5,7 @@ require 'davclient/simple'
 
 def print_html_meta_elements(url)
   doc = Hpricot(get(url))
-  if(doc.search("//meta"))
+  if(doc.search("//meta").size > 0 )
 
     puts url
     doc.search("//meta").each do |elem|
