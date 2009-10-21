@@ -12,7 +12,7 @@
 require 'rake/rdoctask'
 require 'rake/gempackagetask'
 
-GEM_VERSION = "0.0.6"
+GEM_VERSION = "0.0.8"
 
 spec = Gem::Specification.new do |s|
   s.name = "davclient"
@@ -29,7 +29,7 @@ spec = Gem::Specification.new do |s|
   s.files = ["lib/davclient.rb","lib/davclient/hpricot_extensions.rb",
              "lib/davclient/curl_commands.rb", "bin/dav", "lib/davclient/davcli.rb",
              "lib/davclient/dav-put.rb", "lib/davclient/dav-ls.rb",
-             "lib/davclient/dav-propfind.rb"]
+             "lib/davclient/dav-propfind.rb","lib/davclient/util.rb","lib/davclient/termutil.rb"]
   s.executables = ["dav"]
   s.require_path = "lib"
   s.rubyforge_project = "davclient"
@@ -37,6 +37,7 @@ spec = Gem::Specification.new do |s|
   s.has_rdoc = true
   s.extra_rdoc_files = ["README.rdoc"]
   s.add_dependency("hpricot", ">= 0.6")
+  s.add_dependency("termios", ">= 0.9") # For password prompt
   s.add_dependency("ZenTest", ">= 3.5") # For tests
 end
 
