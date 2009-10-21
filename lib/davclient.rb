@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 
 require 'hpricot'
-require 'tempfile'
-require 'open3'
 require 'pathname'
 require 'davclient/hpricot_extensions'
+require 'davclient/curl_commands'
+require 'davclient/util'
 
 # :stopdoc:
 
 # Path to curl executable:
 $curl = "curl"
 
-require 'davclient/curl_commands'
+
 
 # :startdoc:
 
@@ -41,7 +41,7 @@ module WebDAV
   def self.CWURL
     return $CWURL if($CWURL)
     cwurl = nil
-    filename = cwurl_filename
+    filename = DavClient.cwurl_filename
     if(File.exists?(filename))
       File.open(filename, 'r') {|f| cwurl = f.read() }
     end
@@ -112,7 +112,8 @@ module WebDAV
   # as part of the filename.
   def self.CWURL=(url)
     $CWURL = url
-    File.open(cwurl_filename, 'w') {|f| f.write(url) }
+    File.open(DavClient.cwurl_filename, 'w') {|f| f.write(url) }
+    # puts "DEBUG: writing " + DavClient.cwurl_filename
   end
 
 
@@ -126,8 +127,8 @@ module WebDAV
   def self.get(url)
     url = absoluteUrl(url)
 
-    curl_command = "#{$curl} --netrc " + url
-    return exec_curl(curl_command)
+    curl_command = url
+    return DavClient.exec_curl(curl_command)
   end
 
   # Set WebDAV properties for url as xml.
@@ -139,7 +140,7 @@ module WebDAV
     url = absoluteUrl(url)
     curl_command = CURL_PROPPATCH + " \""+url+"\""
     curl_command = curl_command.gsub("<!--property-and-value-->",property)
-    response = exec_curl(curl_command)
+    response = DavClient.exec_curl(curl_command)
     if(not(response =~ /200 OK/)) then
       puts "Error:\nRequest:\n" + curl_command + "\n\nResponse: " + response
       exit(0)
@@ -159,15 +160,16 @@ module WebDAV
     options = args[1]
 
     curl_command = CURL_PROPFIND + " \"" + url + "\""
-    response = exec_curl(curl_command)
+    response = DavClient.exec_curl(curl_command)
 
     if(response == "")then
       return nil
     end
 
     if(not(response =~ /200 OK/)) then
-      puts "Error:\nRequest:\n" + curl_command + "\n\nResponse: " + response
-      exit(0)
+      # puts "Error:\nRequest:\n" + curl_command + "\n\nResponse: " + response
+      # exit(0)
+      raise "Error:\nRequest:\n" + curl_command + "\n\nResponse: " + response
     end
 
     if(options and options[:xml])then
@@ -190,7 +192,7 @@ module WebDAV
   #
   # Examples:
   #
-  #  result = find( url )
+  #  result = find( url [:type => "collection"|"resource"] [:recursive => true])
   #
   #  result = find( url, :type => "collection" ,:recursive => true)
   #
@@ -242,7 +244,13 @@ module WebDAV
         recursive = options[:recursive]
       end
     end
-    dav_xml_output = propfind(href, :xml => true)
+    begin
+      dav_xml_output = propfind(href, :xml => true)
+    rescue Exception => exception
+      $stderr.puts "Warning: " + href + " : " + exception
+      # raise "er
+      return nil
+    end
     if(not(dav_xml_output))then
       return nil
     end
@@ -272,7 +280,10 @@ module WebDAV
               yield item
             end
           end
-          if(type == "file" and item.collection == false )then
+
+          # TODO BUG: Item is not yielded if :type => "resource" is given...
+          # puts "DEBUG: " + type + "  " + item.isCollection?.to_s
+          if( (type == "file" or type == "resource") and item.isCollection? == false )then
             items_filtered.push(item)
             if(block) then
               yield item
@@ -304,7 +315,7 @@ module WebDAV
     props = args[3]
     url = absoluteUrl(url)
     curl_command = CURL_MKCOL + " " + url
-    response = exec_curl(curl_command)
+    response = DavClient.exec_curl(curl_command)
 
     if(props)then
       proppatch(url,props)
@@ -337,7 +348,7 @@ module WebDAV
 
     # puts "DEBUG: " + srcUrl + " => " + destUrl
     curl_command = CURL_COPY.sub("<!--destination-->", destUrl) + " " + srcUrl
-    response = exec_curl(curl_command)
+    response = DavClient.exec_curl(curl_command)
 
     if(response  == "")then
       return destUrl
@@ -357,7 +368,7 @@ module WebDAV
 
     # puts "DEBUG: " + srcUrl + " => " + destUrl
     curl_command = CURL_MOVE.sub("<!--destination-->", destUrl) + " " + srcUrl
-    response = exec_curl(curl_command)
+    response = DavClient.exec_curl(curl_command)
 
     if(response  == "")then
       return destUrl
@@ -378,7 +389,7 @@ module WebDAV
     url = absoluteUrl(url)
 
     curl_command = CURL_DELETE + url
-    response = exec_curl(curl_command)
+    response = DavClient.exec_curl(curl_command)
 
     if(response  == "")then
       return url
@@ -417,17 +428,21 @@ module WebDAV
       raise "Error: WebDAV.put_html: url can not be a collection (folder)."
     end
 
-    filename = string2tempfile(str)
+    filename = DavClient.string2tempfile(str)
     put(url,filename)
   end
 
 
-  # Upload local file
+  # Upload local file to webserver
+  #
+  # Example:
+  #
+  #  WebDAV.put("https://example.org/myfile.html", "myfile.html")
   def self.put(url, file_name)
     url = absoluteUrl(url)
 
-    curl_command = "#{$curl} --netrc --silent --upload-file #{file_name} #{url}"
-    response = exec_curl(curl_command)
+    curl_command = CURL_UPLOAD + " " + file_name + " " + url
+    response = DavClient.exec_curl(curl_command)
     if(response != "" and not(response =~ /200 OK/)) then
       raise "Error:\n WebDAV.put: WebDAV Request:\n" + curl_command + "\n\nResponse: " + response
     end
@@ -438,83 +453,7 @@ module WebDAV
     if(not(url))
       url = self.CWURL
     end
-    return self.exec_curl(CURL_OPTIONS + url )
+    return DavClient.exec_curl(CURL_OPTIONS + url )
   end
-
-  # Returns name of temp folder we're using
-  # TODO: Move this to utility library
-  def self.tmp_folder
-    tmp_file = Tempfile.new("dummy").path
-    basename = File.basename(tmp_file)
-    return  tmp_file.gsub(basename, "")
-  end
-
-
-  # TODO: Move this to utility library
-  # Write string to tempfile and returns filename
-  def self.string2tempfile(str)
-    tmp_dir = tmp_folder + rand.to_s[2..10] + "/"
-    FileUtils.mkdir_p tmp_dir
-    tmp_file = tmp_dir + "webdav.tmp"
-    File.open(tmp_file, 'w') {|f| f.write(str) }
-    return tmp_file
-  end
-
-
-
-  # Returns filename /tmp/cwurl.#pid that holds the current working directory
-  # for the shell's pid
-  def self.cwurl_filename
-    return tmp_folder +  "cwurl." + Process.ppid.to_s
-  end
-
-  private
-
-  # Display instructions for adding credentials to .netrc file
-  def self.display_unauthorized_message(href)
-    puts "Error: 401 Unauthorized: " + href
-    href.match(/^http.*\/\/([^\/]*)/)
-    puts "\nTry adding the following to your ~/.netrc file:"
-    puts ""
-    puts "machine #{$1}"
-    puts "  login    " + ENV['USER']
-    puts "  password ********"
-    puts ""
-  end
-
-
-  # Run 'curl' as a subprocess
-  def self.exec_curl(curl_command)
-    response = ""
-
-    puts curl_command if($DEBUG)
-
-    Open3.popen3(curl_command) do |stdin, stdout, stderr|
-
-      response = stdout.readlines.join("")
-
-      if(response == "")
-        stderr = stderr.readlines.join("").sub(/^\W/,"")
-        if(stderr  =~ /command/)
-          puts "Error: " + stderr
-          exit
-        end
-        if(stderr  =~ /^curl:/)
-          puts "Error: " + stderr
-          puts
-          puts curl_command
-          puts
-          exit
-        end
-      end
-    end
-    if(response =~ /401 Unauthorized/)then
-      href = curl_command.match( /"(http[^\"]*)"$/ )[0].gsub(/"/,"")
-      self.display_unauthorized_message(href)
-      exit
-    end
-    return response
-  end
-
 
 end
