@@ -1,23 +1,27 @@
 # -*- coding: utf-8 -*-
 
+#
+# Templates for curl commands
+#
+
+# Used to improve readability of curl commands that always
+# needs to be on one line
 def remove_newlines(string)
   string.gsub("\n","").gsub(/ +/," ") + " "
 end
 
 # Templates for curl commands:
 curl_propfind_cmd = <<EOF
-#{$curl}
   --request PROPFIND
+  --max-redirs 1
   --header 'Content-Type: text/xml; charset="utf-8"'
   --header "Depth: 1"
   --data-ascii '<?xml version="1.0" encoding="utf-8"?>
       <DAV:propfind xmlns:DAV="DAV:"><DAV:allprop/></DAV:propfind>'
-  --netrc
 EOF
 CURL_PROPFIND = remove_newlines(curl_propfind_cmd)
 
 curl_proppatch_cmd = <<EOF
-#{$curl}
   --request PROPPATCH
   --header 'Content-Type: text/xml; charset="utf-8"'
   --header "Depth: 1"
@@ -29,45 +33,38 @@ curl_proppatch_cmd = <<EOF
           </d:prop>
         </d:set>
       </d:propertyupdate>'
-  --netrc
 EOF
 CURL_PROPPATCH = remove_newlines(curl_proppatch_cmd)
 
 curl_delete_cmd = <<EOF
-#{$curl}
   --request DELETE
   --header 'Content-Type: text/xml; charset="utf-8"'
-  --netrc
 EOF
 CURL_DELETE = remove_newlines(curl_delete_cmd)
 
 curl_mkcol_cmd = <<EOF
-#{$curl}
   --request MKCOL
   --header 'Content-Type: text/xml; charset="utf-8"'
-  --netrc
 EOF
 CURL_MKCOL = remove_newlines(curl_mkcol_cmd)
 
-CURL_OPTIONS = "#{$curl} -i -X OPTIONS --netrc "
+CURL_OPTIONS = "-i -X OPTIONS "
 
 curl_copy = <<EOF
-#{$curl}
   --request COPY
   --header 'Content-Type: text/xml; charset="utf-8"'
   --header 'Destination: <!--destination-->'
-  --netrc
 EOF
 
 CURL_COPY  = remove_newlines(curl_copy)
 
 
 curl_move = <<EOF
-#{$curl}
   --request MOVE
   --header 'Content-Type: text/xml; charset="utf-8"'
   --header 'Destination: <!--destination-->'
-  --netrc
 EOF
 
 CURL_MOVE  = remove_newlines(curl_move)
+
+CURL_UPLOAD = "--upload-file"

@@ -28,7 +28,7 @@ $curl = "curl"
 module WebDAV
 
   # :stopdoc:
-  VERSION = '0.0.4'
+  VERSION = '0.0.8'
   # :startdoc:
 
   # Returns the version string for the library.

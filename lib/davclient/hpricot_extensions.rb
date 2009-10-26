@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-
-require 'rubygems'
+# require 'rubygems'
 require 'hpricot'
+require 'davclient'
+require 'davclient/hpricot_extensions'
 
 # Extensions to the Hpricot XML parser.
 module Hpricot
@@ -31,25 +32,30 @@ module Hpricot
 
   end
 
-  # TODO Not used. Delete???
-  def type_convert_value(value)
-    if(returnValue == "true")then
-      return true
+
+  # Get content from resources on server
+  # Example:
+  #    webpage = WebDAV.find("http://example.org/index.html")
+  #    print "html src: " + page.content
+  def content
+    if(!isCollection?)
+      WebDAV.get(self.at("d:href").innerText)
     end
-    if(returnValue == "false")then
-      return false
-    end
-    # Number format???
-    ## Dato format
-    return returnValue
   end
 
-  # TODO: Make list of recognized namespace prefixes configurable
-  # Get property.
+  def content=(string)
+    if(!isCollection?)
+      WebDAV.put_string(href,string)
+    end
+  end
+
+  # Get property for resource or collection.
   # Example:
   #    page = WebDAV.find(url)
   #    print page.property("published-date")
   def property(name)
+
+    # TODO: Make list of recognized namespace prefixes configurable
 
     property = property = self.at(name)
     if(property)then
@@ -89,6 +95,21 @@ module Hpricot
     File.basename(self.at("d:href").innerText)
   end
 
+
+  # Set the items WebDAV properties. Properties must be a string with XML.
+  # Example:
+  #
+  #    find(url) do |item|
+  #       if(item.href =~ /html$/) then
+  #         item.proppatch("<d:getcontenttype>text/html</d:getcontenttype>")
+  #       end
+  #    end
+  def proppatch(properties)
+    WebDAV.proppatch(href, properties)
+  end
+
+  # :stopdoc:
+
   # TODO: Move to vortex_lib.rb
   def dateProperty(name)
     date = self.property(name)
@@ -108,9 +129,21 @@ module Hpricot
     return time
   end
 
-  # Set the items WebDAV properties. Properties must be a string with XML.
-  def proppatch(properties)
-    WebDAV.proppatch(href, properties)
+
+  # TODO Not used. Delete???
+  def type_convert_value(value)
+    if(returnValue == "true")then
+      return true
+    end
+    if(returnValue == "false")then
+      return false
+    end
+    # Number format???
+    ## Dato format
+    return returnValue
   end
+
+
+  # :startdoc:
 
 end

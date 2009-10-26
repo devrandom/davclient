@@ -135,6 +135,9 @@ module DavClient
 
     puts curl_command if($DEBUG)
 
+    # Common options for all curl commands
+    options = "--netrc"  #  --user-agent
+    curl_command = "#{$curl} " + options  + " " + curl_command
     Open3.popen3(curl_command) do |stdin, stdout, stderr|
 
       response = stdout.readlines.join("")
@@ -142,12 +145,12 @@ module DavClient
       if(response == "")
         stderr = stderr.readlines.join("").sub(/^\W/,"")
         if(stderr =~ /command/)
-          raise "Error: " + stderr
+          raise stderr
           # puts "Error: " + stderr
           # exit
         end
         if(stderr =~ /^curl:/)
-          raise "Error: " + stderr
+          raise stderr
           # puts "Error: " + stderr
           # puts
           # puts curl_command
@@ -158,8 +161,8 @@ module DavClient
     end
     if(response =~ /401 Unauthorized/)then
       href = curl_command.match( /"(http[^\"]*)"$/ )[0].gsub(/"/,"")
-      self.display_unauthorized_message(href)
-      exit
+      # self.display_unauthorized_message(href)
+      # exit
     end
     return response
   end

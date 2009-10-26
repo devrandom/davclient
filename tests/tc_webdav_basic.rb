@@ -8,6 +8,30 @@ $curl = "/usr/local/bin/curl"
 
 class TestWebDAVLib < Test::Unit::TestCase
 
+  def test_01_hpricot_extensions
+    url = "https://vortex-dav.uio.no/brukere/thomasfl/"
+    test_content = "<html><head><title>title</title></head><body>one two three</body></html>"
+    WebDAV.delete(url + "testcase")
+    WebDAV.mkcol(url + "testcase")
+    WebDAV.publish(url + "testcase/test_page.html", test_content,nil)
+
+    webpage = nil
+    WebDAV.find(url + "testcase/") do |item|
+      webpage = item
+    end
+
+#    puts webpage.href
+#    puts "content: " + webpage.content
+
+    webpage.content = webpage.content.gsub(/two/,"2")
+
+    webpage = nil
+    WebDAV.find(url + "testcase/") do |item|
+      webpage = item
+    end
+    assert webpage.content =~ /one 2 three/
+
+  end
 
   def test_find
     url = "https://vortex-dav.uio.no/prosjekter/it-avisa/nyheter/"
@@ -40,45 +64,6 @@ class TestWebDAVLib < Test::Unit::TestCase
     assert(counter > 9 )
   end
 
-end
-
-class BullShit
-
-  def test_find_recursive
-    count = 0
-    url = "https://vortex-dav.uio.no/brukere/thomasfl/anniken_2007/sophos/"
-    WebDAV.find(url, :recursive => true ) do | item |
-      if(item.basename == ".DS_Store")
-        count += 1
-      end
-    end
-    assert_equal(1, count)
-  end
-
-  def test_get
-    url = "https://vortex-dav.uio.no/prosjekter/it-avisa/nyheter/2008/02/nynorsk-paa-nett.html"
-    item = WebDAV.propfind(url)
-    assert(item)
-
-    content = WebDAV.get(url)
-    assert( content =~ /\<html/ )
-
-  end
-
-  def test_mkcol
-    url = "https://vortex-dav.uio.no/prosjekter/it-avisa/nyheter/testcol/"
-
-    WebDAV.delete(url)
-
-    result = WebDAV.mkcol(url,nil)
-    assert(result)
-    col = WebDAV.propfind(url)
-    assert(col)
-
-    # TODO Set properties på collection
-
-  end
-
   def test_propfind
     url = "https://vortex-dav.uio.no/prosjekter/it-avisa/nyheter/"
     item = WebDAV.propfind(url, :xml => true)
@@ -97,6 +82,5 @@ class BullShit
     assert(item.property("v:resourcetype") ) # Downcase
 
   end
-
 
 end
