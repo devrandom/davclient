@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 require 'hpricot'
-require 'pathname'
+require 'uri'
 require 'davclient/hpricot_extensions'
 require 'davclient/curl_commands'
 require 'davclient/util'
@@ -57,10 +57,9 @@ module WebDAV
   #   print WebDAV.absoluteUrl("..")  => "https://example.org/"
   def self.absoluteUrl(url)
     if(not(url =~ /^http.?:\/\//))then
-      cwurl = Pathname.new(self.CWURL)
-      cwurl = cwurl + url
+      cwurl = URI.parse(self.CWURL)
+      cwurl.merge!(url)
       url = cwurl.to_s
-      # url = url + "/" if(not(url =~ /\/$/))
 
       if(not(url =~ /^http.?:\/\//))then
         raise "illegal url: " + url
@@ -180,8 +179,9 @@ module WebDAV
     items = doc.search("//d:response").reverse
     items.each do |item|
 
+      thisurl = absoluteUrl(item.href)
       # Only return root item if folder
-      if(item.href == url or item.href == url + "/" ) then
+      if(thisurl == url or thisurl == url + "/" ) then
         return item
       end
     end
