@@ -179,9 +179,9 @@ module WebDAV
     items = doc.search("//d:response").reverse
     items.each do |item|
 
-      thisurl = absoluteUrl(item.href)
+      item_href = absoluteUrl(item.href)
       # Only return root item if folder
-      if(thisurl == url or thisurl == url + "/" ) then
+      if(item_href == url or item_href == url + "/" ) then
         return item
       end
     end
@@ -263,7 +263,8 @@ module WebDAV
     items.each do |item|
 
       # Ignore info about root item (file or folder)
-      if(item.href != href) then
+      item_href = absoluteUrl(item.href)
+      if(item_href != href && item_href != href + "/") then
 
         if(type == nil)then
           # No filters
@@ -296,8 +297,9 @@ module WebDAV
 
     if(recursive)then
       items_filtered.each do |item|
-        if(item.collection && item.href != args[0])then
-          result = find(item.href, args[1], &block)
+        item_href = absoluteUrl(item.href)
+        if(item.collection && item_href != args[0] && item_href != args[0] + "/")then
+          result = find(item_href, args[1], &block)
           if(result != nil)
             items_filtered.concat( result)
           end
