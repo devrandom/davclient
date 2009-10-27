@@ -55,9 +55,10 @@ module WebDAV
   #
   #   WebDAV.cd("https://example.org/subfolder")
   #   print WebDAV.absoluteUrl("..")  => "https://example.org/"
-  def self.absoluteUrl(url)
+  def self.absoluteUrl(url, origin = nil)
     if(not(url =~ /^http.?:\/\//))then
-      cwurl = URI.parse(self.CWURL)
+      origin = self.CWURL if origin.nil?
+      cwurl = URI.parse(origin)
       cwurl.merge!(url)
       url = cwurl.to_s
 
@@ -179,7 +180,7 @@ module WebDAV
     items = doc.search("//d:response").reverse
     items.each do |item|
 
-      item_href = absoluteUrl(item.href)
+      item_href = absoluteUrl(item.href, url)
       # Only return root item if folder
       if(item_href == url or item_href == url + "/" ) then
         return item
@@ -263,7 +264,7 @@ module WebDAV
     items.each do |item|
 
       # Ignore info about root item (file or folder)
-      item_href = absoluteUrl(item.href)
+      item_href = absoluteUrl(item.href, href)
       if(item_href != href && item_href != href + "/") then
 
         if(type == nil)then
@@ -297,7 +298,7 @@ module WebDAV
 
     if(recursive)then
       items_filtered.each do |item|
-        item_href = absoluteUrl(item.href)
+        item_href = absoluteUrl(item.href, href)
         if(item.collection && item_href != args[0] && item_href != args[0] + "/")then
           result = find(item_href, args[1], &block)
           if(result != nil)
